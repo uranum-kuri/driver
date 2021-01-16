@@ -25,6 +25,8 @@ static uint8_t const tsl2561_channel1_data_addr = 0x8E;
 static uint8_t const tsl2561_control_power_off = 0x00;
 static uint8_t const tsl2561_control_power_on = 0x03;
 
+static uint8_t const tsl2561_device_id = 0x10;
+
 uint8_t const tsl2561_lux_luxscale = 14;
 uint8_t const tsl2561_lux_ratioscale = 9;
 uint8_t const tsl2561_lux_chscale = 10;
@@ -46,7 +48,11 @@ void tsl2561Initialize(struct tsl2561_t* device, i2c_device_t i2c_device) {
         .gain = tsl2561_gain_16x,
         .integral = tsl2561_integral_402ms,
     };
-    tsl2561SetDeviceSettings(device, &settings);
+    uint8_t reg_data[1];
+    tsl2561GetReg(device->i2c_device, tsl2561_id_addr, reg_data, 1);
+    if (reg_data[0] & tsl2561_device_id) {
+        tsl2561SetDeviceSettings(device, &settings);
+    }
 }
 
 void tsl2561SetDeviceSettings(struct tsl2561_t* device,
