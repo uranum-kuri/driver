@@ -18,3 +18,12 @@ add_library(i2c)
 target_sources(i2c PRIVATE src/i2c.c)
 target_include_directories(i2c PUBLIC include)
 target_link_libraries(i2c PUBLIC pigpio)
+
+add_library(tsl2561)
+target_sources(tsl2561 PRIVATE src/tsl2561.c)
+target_include_directories(tsl2561 PUBLIC include)
+target_link_libraries(tsl2561 PUBLIC i2c)
+
+add_executable(tsl2561_ex)
+target_sources(tsl2561_ex PRIVATE example/tsl2561.c)
+target_link_libraries(tsl2561_ex PRIVATE tsl2561)
