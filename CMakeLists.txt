@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.2)
 project(driver C)
 
+option(BUILD_SHARED_LIBS "shared library" ON)
+
 set(CMAKE_C_STANDARD 11)
 
 set(CMAKE_C_FLAGS "-Wall -Wextra")
