@@ -14,6 +14,11 @@ target_sources(pigpio PRIVATE lib/pigpio/pigpio.c
 target_include_directories(pigpio PUBLIC lib/pigpio)
 target_link_libraries(pigpio PUBLIC pthread rt)
 
+add_library(spi)
+target_sources(spi PRIVATE src/spi.c)
+target_include_directories(spi PRIVATE include)
+target_link_libraries(spi PUBLIC pigpio)
+
 add_library(i2c)
 target_sources(i2c PRIVATE src/i2c.c)
 target_include_directories(i2c PUBLIC include)
