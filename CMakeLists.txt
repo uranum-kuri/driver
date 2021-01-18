@@ -26,6 +26,11 @@ target_sources(i2c PRIVATE src/i2c.c)
 target_include_directories(i2c PUBLIC include)
 target_link_libraries(i2c PUBLIC pigpio)
 
+add_library(bme280)
+target_sources(bme280 PRIVATE src/bme280.c)
+target_include_directories(bme280 PUBLIC include)
+target_link_libraries(bme280 PUBLIC spi)
+
 add_library(mcp3002)
 target_sources(mcp3002 PRIVATE src/mcp3002.c)
 target_include_directories(mcp3002 PUBLIC include)
@@ -35,6 +40,10 @@ add_library(tsl2561)
 target_sources(tsl2561 PRIVATE src/tsl2561.c)
 target_include_directories(tsl2561 PUBLIC include)
 target_link_libraries(tsl2561 PUBLIC i2c)
+
+add_executable(bme280_ex)
+target_sources(bme280_ex PRIVATE example/bme280)
+target_link_libraries(bme280_ex PRIVATE bme280)
 
 add_executable(mcp3002_ex)
 target_sources(mcp3002_ex PRIVATE example/mcp3002.c)
