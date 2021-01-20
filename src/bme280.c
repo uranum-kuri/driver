@@ -5,6 +5,11 @@
 
 #include "spi.h"
 
+#include <unistd.h>
+void delay(uint16_t ms) {
+    usleep(ms * 1000);
+}
+
 static uint8_t const bme280_temp_pres_calib_data_addr = 0x88;
 static uint8_t const bme280_hum1_calib_data_addr = 0xA1;
 static uint8_t const bme280_hum_calib_data_addr = 0xE1;
@@ -12,6 +17,8 @@ static uint8_t const bme280_ctrl_meas_addr = 0xF4;
 static uint8_t const bme280_ctrl_hum_addr = 0xF2;
 static uint8_t const bme280_config_addr = 0xF5;
 static uint8_t const bme280_id_addr = 0xD0;
+static uint8_t const bme280_reset_addr = 0xE0;
+static uint8_t const bme280_status_addr = 0xF3;
 static uint8_t const bme280_data_addr = 0xF7;
 
 static uint8_t const bme280_calib_data_len = 32;
@@ -21,6 +28,8 @@ static uint8_t const bme280_hum_calib_data_len = 7;
 static uint8_t const bme280_data_len = 8;
 
 static uint8_t const bme280_chip_id = 0x60;
+static uint8_t const bme280_status_update = 0x01;
+static uint8_t const bme280_reset_command = 0xB6;
 
 #ifdef BME280_FLOAT_ENABLE
 
@@ -43,6 +52,8 @@ static uint32_t const bme280_humidity_max = 102400;
 
 static void bme280ReadCalibData(struct bme280_t* device);
 
+static void bme280Reset(struct bme280_t* device);
+
 static void bme280SetReg(spi_device_t device, uint8_t address, uint8_t data);
 static void bme280GetReg(spi_device_t device, uint8_t address, uint8_t* data,
                          uint8_t len);
@@ -60,6 +71,7 @@ void bme280Initialize(struct bme280_t* device, spi_device_t spi_device) {
     uint8_t reg_data[1];
     bme280GetReg(device->spi_device, bme280_id_addr, reg_data, 1);
     if (reg_data[0] & bme280_chip_id) {
+        bme280Reset(device);
         bme280SetDeviceSettings(device, &settings);
         bme280ReadCalibData(device);
     }
@@ -307,6 +319,15 @@ static void bme280ReadCalibData(struct bme280_t* device) {
     dig_h5_lsb = (reg_data[29] & 0xF0) >> 4;
     data->dig_h5 = (int16_t)(dig_h5_msb | dig_h5_lsb);
     data->dig_h6 = (int8_t)reg_data[31];
+}
+
+static void bme280Reset(struct bme280_t* device) {
+    bme280SetReg(device->spi_device, bme280_reset_addr, bme280_reset_command);
+    uint8_t status[1];
+    do {
+        delay(2);
+        bme280GetReg(device->spi_device, bme280_status_addr, status, 1);
+    } while (status[0] & bme280_status_update);
 }
 
 static void bme280SetReg(spi_device_t device, uint8_t address, uint8_t data) {
