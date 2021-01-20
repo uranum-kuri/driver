@@ -11,6 +11,7 @@ static uint8_t const bme280_hum_calib_data_addr = 0xE1;
 static uint8_t const bme280_ctrl_meas_addr = 0xF4;
 static uint8_t const bme280_ctrl_hum_addr = 0xF2;
 static uint8_t const bme280_config_addr = 0xF5;
+static uint8_t const bme280_id_addr = 0xD0;
 static uint8_t const bme280_data_addr = 0xF7;
 
 static uint8_t const bme280_calib_data_len = 32;
@@ -18,6 +19,8 @@ static uint8_t const bme280_temp_pres_calib_data_len = 24;
 static uint8_t const bme280_hum1_calib_data_len = 1;
 static uint8_t const bme280_hum_calib_data_len = 7;
 static uint8_t const bme280_data_len = 8;
+
+static uint8_t const bme280_chip_id = 0x60;
 
 #ifdef BME280_FLOAT_ENABLE
 
@@ -54,8 +57,12 @@ void bme280Initialize(struct bme280_t* device, spi_device_t spi_device) {
         .standby = bme280_standbytime_1000s,
         .filter = bme280_filter_off,
     };
-    bme280SetDeviceSettings(device, &settings);
-    bme280ReadCalibData(device);
+    uint8_t reg_data[1];
+    bme280GetReg(device->spi_device, bme280_id_addr, reg_data, 1);
+    if (reg_data[0] & bme280_chip_id) {
+        bme280SetDeviceSettings(device, &settings);
+        bme280ReadCalibData(device);
+    }
 }
 
 void bme280SetDeviceSettings(struct bme280_t* device,
