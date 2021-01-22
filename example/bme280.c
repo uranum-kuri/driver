@@ -1,8 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <unistd.h>
-
 #include "pigpio.h"
 #include "spi.h"
 #include "bme280.h"
