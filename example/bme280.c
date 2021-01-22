@@ -34,7 +34,6 @@ int main(void) {
         .filter = bme280_filter_coeff_16,
     };
     bme280SetDeviceSettings(&device, &settings);
-    sleep(1);
 
     // Read Termperature, Pressure and Humidity
     struct bme280_data_t data;

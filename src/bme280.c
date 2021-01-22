@@ -29,6 +29,7 @@ static uint8_t const bme280_data_len = 8;
 
 static uint8_t const bme280_chip_id = 0x60;
 static uint8_t const bme280_status_update = 0x01;
+static uint8_t const bme280_status_measuring = 0x08;
 static uint8_t const bme280_reset_command = 0xB6;
 
 #ifdef BME280_FLOAT_ENABLE
@@ -53,6 +54,8 @@ static uint32_t const bme280_humidity_max = 102400;
 static void bme280ReadCalibData(struct bme280_t* device);
 
 static void bme280Reset(struct bme280_t* device);
+
+static void bme280SetSettingsReg(struct bme280_t* device);
 
 static void bme280SetReg(spi_device_t device, uint8_t address, uint8_t data);
 static void bme280GetReg(spi_device_t device, uint8_t address, uint8_t* data,
@@ -85,20 +88,23 @@ void bme280SetDeviceSettings(struct bme280_t* device,
     device->settings.osr_hum = settings->osr_hum;
     device->settings.standby = settings->standby;
     device->settings.filter = settings->filter;
-    uint8_t config_reg = settings->standby | settings->filter;
-    uint8_t ctrl_meas_reg = settings->osr_temp | settings->osr_pres | settings->mode;
-    uint8_t ctrl_hum_reg = settings->osr_hum;
-    bme280SetReg(device->spi_device, bme280_config_addr, config_reg);
-    bme280SetReg(device->spi_device, bme280_ctrl_meas_addr, ctrl_meas_reg);
-    bme280SetReg(device->spi_device, bme280_ctrl_hum_addr, ctrl_hum_reg);
+    bme280SetSettingsReg(device);
 }
 
 void bme280ReadDeviceData(struct bme280_t* device,
                           struct bme280_data_t* data) {
     uint8_t data_reg[bme280_data_len];
+    uint8_t status[1];
     uint32_t data_xlsb;
     uint32_t data_lsb;
     uint32_t data_msb;
+    if (device->settings.mode == bme280_mode_forced) {
+        bme280SetSettingsReg(device);
+    }
+    do {
+        delay(2);
+        bme280GetReg(device->spi_device, bme280_status_addr, status, 1);
+    } while (status[0] & bme280_status_measuring);
     bme280GetReg(device->spi_device, bme280_data_addr, data_reg, bme280_data_len);
     data_msb = data_reg[0] << 12;
     data_lsb = data_reg[1] << 4;
@@ -328,6 +334,15 @@ static void bme280Reset(struct bme280_t* device) {
         delay(2);
         bme280GetReg(device->spi_device, bme280_status_addr, status, 1);
     } while (status[0] & bme280_status_update);
+}
+
+static void bme280SetSettingsReg(struct bme280_t* device) {
+    uint8_t config_reg = device->settings.standby | device->settings.filter;
+    uint8_t ctrl_meas_reg = device->settings.osr_temp | device->settings.osr_pres | device->settings.mode;
+    uint8_t ctrl_hum_reg = device->settings.osr_hum;
+    bme280SetReg(device->spi_device, bme280_config_addr, config_reg);
+    bme280SetReg(device->spi_device, bme280_ctrl_meas_addr, ctrl_meas_reg);
+    bme280SetReg(device->spi_device, bme280_ctrl_hum_addr, ctrl_hum_reg);
 }
 
 static void bme280SetReg(spi_device_t device, uint8_t address, uint8_t data) {
