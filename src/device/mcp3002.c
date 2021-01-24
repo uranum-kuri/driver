@@ -1,8 +1,7 @@
-#include "mcp3002.h"
-
 #include <stdint.h>
 
-#include "spi.h"
+#include "interface/spi.h"
+#include "device/mcp3002.h"
 
 #include <unistd.h>
 void delay(uint16_t ms) {

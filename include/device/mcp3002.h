@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 
-#include "spi.h"
+#include "interface/spi.h"
 
 enum mcp3002_channel_t {
     mcp3002_channel_differential_0 = 0x00,

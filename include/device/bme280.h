@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 
-#include "spi.h"
+#include "interface/spi.h"
 
 enum bme280_osr_temp_t {
     bme280_osr_temp_skip = 0x00,

@@ -1,11 +1,10 @@
-#include "tsl2561.h"
-
 #ifdef TSL2561_FLOAT_ENABLE
 #include <math.h>
 #endif
 #include <stdint.h>
 
-#include "i2c.h"
+#include "interface/i2c.h"
+#include "device/tsl2561.h"
 
 #include <unistd.h>
 void delay(uint16_t ms) {

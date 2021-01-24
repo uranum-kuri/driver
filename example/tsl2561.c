@@ -2,8 +2,8 @@
 #include <stdint.h>
 
 #include "pigpio.h"
-#include "i2c.h"
-#include "tsl2561.h"
+#include "interface/i2c.h"
+#include "device/tsl2561.h"
 
 int main(void) {
     // initialize pigpio

@@ -2,8 +2,8 @@
 #include <stdio.h>
 
 #include "pigpio.h"
-#include "spi.h"
-#include "bme280.h"
+#include "interface/spi.h"
+#include "device/bme280.h"
 
 int main(void) {
     // Initialize pigpio

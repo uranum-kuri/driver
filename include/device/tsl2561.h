@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 
-#include "i2c.h"
+#include "interface/i2c.h"
 
 extern uint8_t const tsl2561_addr_low;
 extern uint8_t const tsl2561_addr_float;

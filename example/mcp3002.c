@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "mcp3002.h"
 #include "pigpio.h"
-#include "spi.h"
+#include "interface/spi.h"
+#include "device/mcp3002.h"
 
 int main(void) {
     // Initialize pigpio
