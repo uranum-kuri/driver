@@ -94,6 +94,6 @@ static uint16_t mcp3002GetReg(uint8_t device, enum mcp3002_channel_t channel) {
     tx_buf[0] = 0x48 | channel;
     spiTransfer(device, tx_buf, rx_buf, 2);
     uint16_t data = 0;
-    data = (rx_buf[0] | 0x03) << 8 | rx_buf[1];
+    data = (rx_buf[0] & 0x03) << 8 | rx_buf[1];
     return data;
 }
