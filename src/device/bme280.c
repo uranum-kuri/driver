@@ -20,12 +20,6 @@ static uint8_t const bme280_reset_addr = 0xE0;
 static uint8_t const bme280_status_addr = 0xF3;
 static uint8_t const bme280_data_addr = 0xF7;
 
-static uint8_t const bme280_calib_data_len = 32;
-static uint8_t const bme280_temp_pres_calib_data_len = 24;
-static uint8_t const bme280_hum1_calib_data_len = 1;
-static uint8_t const bme280_hum_calib_data_len = 7;
-static uint8_t const bme280_data_len = 8;
-
 static uint8_t const bme280_chip_id = 0x60;
 static uint8_t const bme280_status_update = 0x01;
 static uint8_t const bme280_status_measuring = 0x08;
@@ -50,7 +44,8 @@ static uint32_t const bme280_humidity_max = 102400;
 
 #endif
 
-static void bme280ReadCalibData(struct bme280_t* device);
+static void bme280ReadCalibData(spi_device_t spi_device,
+                                struct bme280_calib_data_t* data);
 
 static void bme280Reset(struct bme280_t* device);
 
@@ -75,7 +70,7 @@ void bme280Initialize(struct bme280_t* device, spi_device_t spi_device) {
     if (reg_data[0] & bme280_chip_id) {
         bme280Reset(device);
         bme280SetDeviceSettings(device, &settings);
-        bme280ReadCalibData(device);
+        bme280ReadCalibData(device->spi_device, &device->calib_data);
     }
 }
 
@@ -92,7 +87,7 @@ void bme280SetDeviceSettings(struct bme280_t* device,
 
 void bme280ReadDeviceData(struct bme280_t* device,
                           struct bme280_data_t* data) {
-    uint8_t data_reg[bme280_data_len];
+    uint8_t data_reg[8];
     uint8_t status[1];
     uint32_t data_xlsb;
     uint32_t data_lsb;
@@ -104,7 +99,7 @@ void bme280ReadDeviceData(struct bme280_t* device,
         delay(2);
         bme280GetReg(device->spi_device, bme280_status_addr, status, 1);
     } while (status[0] & bme280_status_measuring);
-    bme280GetReg(device->spi_device, bme280_data_addr, data_reg, bme280_data_len);
+    bme280GetReg(device->spi_device, bme280_data_addr, data_reg, 8);
     data_msb = data_reg[0] << 12;
     data_lsb = data_reg[1] << 4;
     data_xlsb = (data_reg[2] & 0xF0) >> 4;
@@ -291,17 +286,14 @@ uint32_t bme280CalculateHumidity(struct bme280_t* device, struct bme280_data_t* 
 
 static void bme280ReadCalibData(struct bme280_t* device) {
     struct bme280_calib_data_t* data = &device->calib_data;
-    uint8_t reg_data[bme280_calib_data_len];
+    uint8_t reg_data[32];
     uint16_t dig_h4_lsb;
     uint16_t dig_h4_msb;
     uint16_t dig_h5_lsb;
     uint16_t dig_h5_msb;
-    bme280GetReg(device->spi_device, bme280_temp_pres_calib_data_addr,
-                 &reg_data[0], bme280_temp_pres_calib_data_len);
-    bme280GetReg(device->spi_device, bme280_hum1_calib_data_addr,
-                 &reg_data[24], bme280_hum1_calib_data_len);
-    bme280GetReg(device->spi_device, bme280_hum_calib_data_addr, &reg_data[25],
-                 bme280_hum_calib_data_len);
+    bme280GetReg(spi_device, bme280_temp_pres_calib_data_addr, reg_data, 24);
+    bme280GetReg(spi_device, bme280_hum1_calib_data_addr, &reg_data[24], 1);
+    bme280GetReg(spi_device, bme280_hum_calib_data_addr, &reg_data[25], 7);
     data->dig_t1 = reg_data[1] << 8 | reg_data[0];
     data->dig_t2 = (int16_t)(reg_data[3] << 8 | reg_data[2]);
     data->dig_t3 = (int16_t)(reg_data[5] << 8 | reg_data[4]);
