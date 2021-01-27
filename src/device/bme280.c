@@ -284,8 +284,7 @@ uint32_t bme280CalculateHumidity(struct bme280_t* device, struct bme280_data_t* 
 
 #endif
 
-static void bme280ReadCalibData(struct bme280_t* device) {
-    struct bme280_calib_data_t* data = &device->calib_data;
+static void bme280ReadCalibData(spi_device_t spi_device, struct bme280_calib_data_t* data) {
     uint8_t reg_data[32];
     uint16_t dig_h4_lsb;
     uint16_t dig_h4_msb;
