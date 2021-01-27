@@ -1,6 +1,6 @@
+#include "interface/spi.h"
 #include <stdint.h>
 #include "pigpio.h"
-#include "interface/spi.h"
 
 spi_device_t spiInitialize(struct spi_settings_t* settings) {
     uint32_t spi_flag = 0;

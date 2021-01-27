@@ -109,20 +109,25 @@ void bme280Initialize(struct bme280_t* device, spi_device_t spi_device);
 void bme280SetDeviceSettings(struct bme280_t* device,
                              struct bme280_settings_t* settings);
 
-void bme280ReadDeviceData(struct bme280_t* device,
-                          struct bme280_data_t* data);
+void bme280ReadDeviceData(struct bme280_t* device, struct bme280_data_t* data);
 
 #ifdef BME280_FLOAT_ENABLE
 
-double bme280CalculateTemperature(struct bme280_t* device, struct bme280_data_t* data);
-double bme280CalculatePressure(struct bme280_t* device, struct bme280_data_t* data);
-double bme280CalculateHumidity(struct bme280_t* device, struct bme280_data_t* data);
+double bme280CalculateTemperature(struct bme280_t* device,
+                                  struct bme280_data_t* data);
+double bme280CalculatePressure(struct bme280_t* device,
+                               struct bme280_data_t* data);
+double bme280CalculateHumidity(struct bme280_t* device,
+                               struct bme280_data_t* data);
 
 #else
 
-int32_t bme280CalculateTemperature(struct bme280_t* device, struct bme280_data_t* data);
-uint32_t bme280CalculatePressure(struct bme280_t* device, struct bme280_data_t* data);
-uint32_t bme280CalculateHumidity(struct bme280_t* device, struct bme280_data_t* data);
+int32_t bme280CalculateTemperature(struct bme280_t* device,
+                                   struct bme280_data_t* data);
+uint32_t bme280CalculatePressure(struct bme280_t* device,
+                                 struct bme280_data_t* data);
+uint32_t bme280CalculateHumidity(struct bme280_t* device,
+                                 struct bme280_data_t* data);
 
 #endif
 

@@ -1,8 +1,8 @@
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
-#include "interface/spi.h"
 #include "device/bme280.h"
+#include "interface/spi.h"
 
 #include <unistd.h>
 void delay(uint16_t ms) {
@@ -85,8 +85,7 @@ void bme280SetDeviceSettings(struct bme280_t* device,
     bme280SetSettingsReg(device);
 }
 
-void bme280ReadDeviceData(struct bme280_t* device,
-                          struct bme280_data_t* data) {
+void bme280ReadDeviceData(struct bme280_t* device, struct bme280_data_t* data) {
     uint8_t data_reg[8];
     uint8_t status[1];
     uint32_t data_xlsb;
@@ -115,7 +114,8 @@ void bme280ReadDeviceData(struct bme280_t* device,
 
 #ifdef BME280_FLOAT_ENABLE
 
-double bme280CalculateTemperature(struct bme280_t* device, struct bme280_data_t* data) {
+double bme280CalculateTemperature(struct bme280_t* device,
+                                  struct bme280_data_t* data) {
     double var1;
     double var2;
     double temperature;
@@ -135,7 +135,8 @@ double bme280CalculateTemperature(struct bme280_t* device, struct bme280_data_t*
     return temperature;
 }
 
-double bme280CalculatePressure(struct bme280_t* device, struct bme280_data_t* data) {
+double bme280CalculatePressure(struct bme280_t* device,
+                               struct bme280_data_t* data) {
     double var1;
     double var2;
     double var3;
@@ -150,11 +151,11 @@ double bme280CalculatePressure(struct bme280_t* device, struct bme280_data_t* da
     if (var1 > 0.0) {
         pressure = 1048576.0 - (double)data->pressure;
         pressure = (pressure - (var2 / 4096.0)) * 6250.0 / var1;
-        var1 =
-            ((double)device->calib_data.dig_p9) * pressure * pressure / 2147483648.0;
+        var1 = ((double)device->calib_data.dig_p9) * pressure * pressure /
+               2147483648.0;
         var2 = pressure * ((double)device->calib_data.dig_p8) / 32768.0;
-        pressure =
-            pressure + (var1 + var2 + ((double)device->calib_data.dig_p7)) / 16.0;
+        pressure = pressure +
+                   (var1 + var2 + ((double)device->calib_data.dig_p7)) / 16.0;
         pressure /= 100.0;
         if (pressure > bme280_pressure_max) {
             pressure = bme280_pressure_max;
@@ -167,7 +168,8 @@ double bme280CalculatePressure(struct bme280_t* device, struct bme280_data_t* da
     return pressure;
 }
 
-double bme280CalculateHumidity(struct bme280_t* device, struct bme280_data_t* data) {
+double bme280CalculateHumidity(struct bme280_t* device,
+                               struct bme280_data_t* data) {
     double var1;
     double var2;
     double var3;
@@ -181,9 +183,11 @@ double bme280CalculateHumidity(struct bme280_t* device, struct bme280_data_t* da
     var3 = data->humidity - var2;
     var4 = ((double)device->calib_data.dig_h2) / 65536.0;
     var5 = (1.0 + (((double)device->calib_data.dig_h3) / 67108864.0) * var1);
-    var6 = 1.0 + (((double)device->calib_data.dig_h6) / 67108864.0) * var1 * var5;
+    var6 =
+        1.0 + (((double)device->calib_data.dig_h6) / 67108864.0) * var1 * var5;
     var6 = var3 * var4 * (var5 * var6);
-    humidity = var6 * (1.0 - ((double)device->calib_data.dig_h1) * var6 / 524288.0);
+    humidity =
+        var6 * (1.0 - ((double)device->calib_data.dig_h1) * var6 / 524288.0);
     if (humidity > bme280_humidity_max) {
         humidity = bme280_humidity_max;
     } else if (humidity < bme280_humidity_min) {
@@ -194,15 +198,18 @@ double bme280CalculateHumidity(struct bme280_t* device, struct bme280_data_t* da
 
 #else
 
-int32_t bme280CalculateTemperature(struct bme280_t* device, struct bme280_data_t* data) {
+int32_t bme280CalculateTemperature(struct bme280_t* device,
+                                   struct bme280_data_t* data) {
     int32_t var1;
     int32_t var2;
     int32_t temperature;
-    var1 =
-        (int32_t)((data->temperature / 8) - ((int32_t)device->calib_data.dig_t1 * 2));
+    var1 = (int32_t)((data->temperature / 8) -
+                     ((int32_t)device->calib_data.dig_t1 * 2));
     var1 = (var1 * ((int32_t)device->calib_data.dig_t2)) / 2048;
-    var2 = (int32_t)((data->temperature / 16) - ((int32_t)device->calib_data.dig_t1));
-    var2 = (((var2 * var2) / 4096) * ((int32_t)device->calib_data.dig_t3)) / 16384;
+    var2 = (int32_t)((data->temperature / 16) -
+                     ((int32_t)device->calib_data.dig_t1));
+    var2 =
+        (((var2 * var2) / 4096) * ((int32_t)device->calib_data.dig_t3)) / 16384;
     device->calib_data.t_fine = var1 + var2;
     temperature = (device->calib_data.t_fine * 5 + 128) / 256;
     if (temperature > bme280_temperature_max) {
@@ -213,7 +220,8 @@ int32_t bme280CalculateTemperature(struct bme280_t* device, struct bme280_data_t
     return temperature;
 }
 
-uint32_t bme280CalculatePressure(struct bme280_t* device, struct bme280_data_t* data) {
+uint32_t bme280CalculatePressure(struct bme280_t* device,
+                                 struct bme280_data_t* data) {
     int32_t var1;
     int32_t var2;
     int32_t var3;
@@ -221,7 +229,8 @@ uint32_t bme280CalculatePressure(struct bme280_t* device, struct bme280_data_t* 
     uint32_t var5;
     uint32_t pressure;
     var1 = (((int32_t)device->calib_data.t_fine) / 2) - (int32_t)64000;
-    var2 = (((var1 / 4) * (var1 / 4)) / 2048) * ((int32_t)device->calib_data.dig_p6);
+    var2 = (((var1 / 4) * (var1 / 4)) / 2048) *
+           ((int32_t)device->calib_data.dig_p6);
     var2 = var2 + ((var1 * ((int32_t)device->calib_data.dig_p5)) * 2);
     var2 = (var2 / 4) + (((int32_t)device->calib_data.dig_p4) * 65536);
     var3 = (device->calib_data.dig_p3 * (((var1 / 4) * (var1 / 4)) / 8192)) / 8;
@@ -240,7 +249,8 @@ uint32_t bme280CalculatePressure(struct bme280_t* device, struct bme280_data_t* 
                 ((int32_t)(((pressure / 8) * (pressure / 8)) / 8192))) /
                4096;
         var2 =
-            (((int32_t)(pressure / 4)) * ((int32_t)device->calib_data.dig_p8)) / 8192;
+            (((int32_t)(pressure / 4)) * ((int32_t)device->calib_data.dig_p8)) /
+            8192;
         pressure = (uint32_t)((int32_t)pressure +
                               ((var1 + var2 + device->calib_data.dig_p7) / 16));
         if (pressure > bme280_pressure_max) {
@@ -254,7 +264,8 @@ uint32_t bme280CalculatePressure(struct bme280_t* device, struct bme280_data_t* 
     return pressure;
 }
 
-uint32_t bme280CalculateHumidity(struct bme280_t* device, struct bme280_data_t* data) {
+uint32_t bme280CalculateHumidity(struct bme280_t* device,
+                                 struct bme280_data_t* data) {
     int32_t var1;
     int32_t var2;
     int32_t var3;
@@ -284,7 +295,8 @@ uint32_t bme280CalculateHumidity(struct bme280_t* device, struct bme280_data_t* 
 
 #endif
 
-static void bme280ReadCalibData(spi_device_t spi_device, struct bme280_calib_data_t* data) {
+static void bme280ReadCalibData(spi_device_t spi_device,
+                                struct bme280_calib_data_t* data) {
     uint8_t reg_data[32];
     uint16_t dig_h4_lsb;
     uint16_t dig_h4_msb;
@@ -328,7 +340,8 @@ static void bme280Reset(struct bme280_t* device) {
 
 static void bme280SetSettingsReg(struct bme280_t* device) {
     uint8_t config_reg = device->settings.standby | device->settings.filter;
-    uint8_t ctrl_meas_reg = device->settings.osr_temp | device->settings.osr_pres | device->settings.mode;
+    uint8_t ctrl_meas_reg = device->settings.osr_temp |
+                            device->settings.osr_pres | device->settings.mode;
     uint8_t ctrl_hum_reg = device->settings.osr_hum;
     bme280SetReg(device->spi_device, bme280_config_addr, config_reg);
     bme280SetReg(device->spi_device, bme280_ctrl_meas_addr, ctrl_meas_reg);

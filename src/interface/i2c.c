@@ -1,6 +1,6 @@
+#include "interface/i2c.h"
 #include <stdint.h>
 #include "pigpio.h"
-#include "interface/i2c.h"
 
 i2c_device_t i2cInitialize(struct i2c_settings_t* settings) {
     int8_t device;
