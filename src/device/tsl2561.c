@@ -26,13 +26,6 @@ static uint8_t const tsl2561_control_power_on = 0x03;
 
 static uint8_t const tsl2561_device_id = 0x10;
 
-uint8_t const tsl2561_lux_luxscale = 14;
-uint8_t const tsl2561_lux_ratioscale = 9;
-uint8_t const tsl2561_lux_chscale = 10;
-
-uint16_t const tsl2561_lux_chscale_tint0 = 0x7517;
-uint16_t const tsl2561_lux_chscale_tint1 = 0x0FE7;
-
 static void tsl2561SetReg(i2c_device_t i2c_device, uint8_t address,
                           uint8_t data);
 static void tsl2561GetReg(i2c_device_t i2c_device, uint8_t address,
@@ -153,22 +146,22 @@ uint32_t tsl2561CalculateIlluminance(struct tsl2561_t* device,
     uint32_t illuminance;
     switch (device->settings.integral) {
     case tsl2561_integral_13ms:
-        chScale = tsl2561_lux_chscale_tint0;
+        chScale = 0x7517;
         break;
     case tsl2561_integral_101ms:
-        chScale = tsl2561_lux_chscale_tint1;
+        chScale = 0x0FE7;
         break;
     case tsl2561_integral_402ms:
-        chScale = (1 << tsl2561_lux_chscale);
+        chScale = 0x0400;
         break;
     }
     if (device->settings.gain == tsl2561_gain_1x) {
         chScale = chScale << 4;
     }
-    channel0 = (data->channel_0 * chScale) >> tsl2561_lux_chscale;
-    channel1 = (data->channel_1 * chScale) >> tsl2561_lux_chscale;
+    channel0 = (data->channel_0 * chScale) >> 10;
+    channel1 = (data->channel_1 * chScale) >> 10;
     if (channel0 != 0) {
-        ratio = (channel1 << (tsl2561_lux_ratioscale + 1)) / channel0;
+        ratio = (channel1 << 10) / channel0;
     }
     ratio = (ratio + 1) >> 1;
 #ifdef TSL2561_PACKAGE_CS
@@ -225,8 +218,8 @@ uint32_t tsl2561CalculateIlluminance(struct tsl2561_t* device,
     }
 #endif
     temp = ((channel0 * b) - (channel1 * m));
-    temp += (1 << (tsl2561_lux_luxscale - 1));
-    illuminance = temp >> tsl2561_lux_luxscale;
+    temp += (1 << 13);
+    illuminance = temp >> 14;
     return illuminance;
 }
 
